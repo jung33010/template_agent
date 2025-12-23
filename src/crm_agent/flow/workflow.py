@@ -10,11 +10,10 @@ from crm_agent.db.repo import Repo
 from crm_agent.services.targeting import build_target
 from crm_agent.rag.retriever import RagRetriever, build_context_text
 
-# stages
 ST_BRIEF = "BRIEF"
-ST_TARGET_INPUT = "TARGET_INPUT"          # ✅ app.py에서 저장
-ST_TARGET_AUDIENCE = "TARGET_AUDIENCE"    # ✅ app.py에서 저장
-ST_TARGET = "TARGET"                      # ✅ workflow가 저장(확장본)
+ST_TARGET_INPUT = "TARGET_INPUT"
+ST_TARGET_AUDIENCE = "TARGET_AUDIENCE"
+ST_TARGET = "TARGET"
 ST_RAG = "RAG"
 ST_TEMPLATE_CANDIDATES = "TEMPLATE_CANDIDATES"
 ST_COMPLIANCE = "COMPLIANCE"
@@ -44,8 +43,8 @@ class CRMState(TypedDict, total=False):
     tone: str
 
     brief: dict
-    target_input: dict           # ✅ 추가
-    target_audience: dict        # ✅ 추가
+    target_input: dict
+    target_audience: dict
 
     target: dict
     rag: dict
@@ -73,11 +72,6 @@ def _build_rag_evidence(
         max_each_source: int = 3,
         max_text_chars: int = 800,
 ) -> List[Dict[str, Any]]:
-    """
-    retrieved["matches"] -> evidence[]
-    - source(문서)별 최대 N개만 저장
-    - text가 너무 길면 잘라서 저장(핸드오프 payload 과대 방지)
-    """
     matches = retrieved.get("matches", []) or []
     per_source = defaultdict(int)
 
@@ -118,9 +112,6 @@ def _safe_dict(x: Any) -> dict:
 
 
 def _summarize_target_input(target_input: dict) -> str:
-    """
-    UI에서 선택한 필터 요약 문자열 생성
-    """
     gender = target_input.get("gender") or []
     age_bands = target_input.get("age_bands") or []
     skin_types = target_input.get("skin_types") or []
@@ -153,7 +144,6 @@ def node_load_brief(state: CRMState) -> CRMState:
         channel = state.get("channel") or run.get("channel") or "PUSH"
         tone = state.get("tone") or "amoremall"
 
-        # ✅ app.py에서 저장한 TARGET_INPUT / TARGET_AUDIENCE도 같이 로드(있으면)
         ti_h = repo.get_latest_handoff(run_id, ST_TARGET_INPUT)
         ta_h = repo.get_latest_handoff(run_id, ST_TARGET_AUDIENCE)
         target_input = ti_h["payload_json"] if ti_h else {}
@@ -172,13 +162,6 @@ def node_load_brief(state: CRMState) -> CRMState:
 
 
 def node_targeting(state: CRMState) -> CRMState:
-    """
-    ✅ 변경 핵심
-    - app.py에서 저장한 TARGET_INPUT / TARGET_AUDIENCE를 읽어
-      workflow가 저장하는 TARGET payload에 합친다.
-    - 기존 build_target(repo.db, brief...)는 그대로 호출하되,
-      결과를 "base_target"로 두고 확장 필드를 merge한다.
-    """
     repo = _repo()
     try:
         run_id = state["run_id"]
@@ -189,49 +172,34 @@ def node_targeting(state: CRMState) -> CRMState:
         target_input = _safe_dict(state.get("target_input") or {})
         target_audience = _safe_dict(state.get("target_audience") or {})
 
-        # 기존 로직 유지(안 깨지게)
         base_target = build_target(repo.db, brief=brief, channel=channel, tone=tone)
         base_target = _safe_dict(base_target)
 
-        # app.py가 만든 audience(카운트/user_ids/키워드 매칭 결과)에서 핵심만 뽑기
         resolved = _safe_dict(target_audience.get("resolved") or {})
         audience_count = int(target_audience.get("count") or 0)
         audience_user_ids = target_audience.get("user_ids") or []
         audience_sample = target_audience.get("sample") or []
 
-        # 확장 TARGET payload
         target = {
             **base_target,
-            "target_input": target_input,  # 원본 필터(F/M, age_bands, skin_types, concern_keywords)
+            "target_input": target_input,
             "audience": {
                 "count": audience_count,
                 "user_ids": audience_user_ids,
                 "sample": audience_sample,
-                "resolved": resolved,  # 키워드→카테고리→DB concern code 변환 결과
+                "resolved": resolved,
             },
-            # base_target에 summary/target_query가 있어도 덮어써도 괜찮게 별도 필드로 유지
             "target_input_summary": _summarize_target_input(target_input),
         }
 
         repo.create_handoff(run_id, ST_TARGET, target)
         repo.update_run(run_id, channel=channel, step_id="S2_TARGET")
-
         return {**state, "target": target}
     finally:
         _close_repo(repo)
 
 
 def node_rag(state: CRMState) -> CRMState:
-    """
-    ✅ Template Agent 철학 반영:
-    - Template Agent는 product/offer를 결정하지 않음 (슬롯 유지)
-    - RAG는 goal + channel + tone + target 중심으로
-      브랜드가이드/채널정책/컴플라이언스/베스트프랙티스 근거를 찾음
-
-    ✅ 변경:
-    - TARGET에 들어간 target_input_summary / audience.resolved(키워드 매칭) / audience.count를 query에 포함
-    - retrieved.matches를 evidence로 저장해 DB handoff에서 근거 추적 가능
-    """
     repo = _repo()
     try:
         run_id = state["run_id"]
@@ -242,8 +210,8 @@ def node_rag(state: CRMState) -> CRMState:
 
         goal = brief.get("goal", "") or brief.get("campaign_goal", "")
 
-        target_query = target.get("target_query", {}) or {}     # base_target가 만든 값(있으면)
-        target_summary = target.get("summary", "") or ""        # base_target가 만든 값(있으면)
+        target_query = target.get("target_query", {}) or {}
+        target_summary = target.get("summary", "") or ""
         target_input_summary = target.get("target_input_summary", "") or ""
         audience = _safe_dict(target.get("audience") or {})
         audience_count = audience.get("count", 0)
@@ -259,23 +227,19 @@ def node_rag(state: CRMState) -> CRMState:
             f"- base_target_summary={target_summary}\n"
             f"- selected_filters={target_input_summary}\n"
             f"- audience_count={audience_count}\n"
-            f"- concern_mapping(keywords->categories->db_codes)={resolved}\n\n"
+            f"- concern_mapping={resolved}\n\n"
             "[요청]\n"
             "- 브랜드 가이드(톤/문장 규칙)\n"
             "- 채널 정책(길이/구성/CTA 규칙)\n"
             "- 컴플라이언스(금지 표현/완곡 표현)\n"
             "- 유사 캠페인 포맷/베스트 프랙티스\n"
-            "위 항목에 대한 근거 문장을 찾아 요약해줘.\n"
             "주의: 상품/혜택/가격은 확정하지 말고 슬롯으로 남기는 방향의 가이드만 찾아라."
         )
 
         retriever = RagRetriever()
         retrieved = retriever.retrieve(query=query, filters=None, top_k=10)
 
-        # (1) LLM에 넣을 요약 컨텍스트
         context = build_context_text(retrieved, max_each=3)
-
-        # (2) DB에 남길 근거
         evidence = _build_rag_evidence(retrieved, max_each_source=3, max_text_chars=800)
 
         rag_payload = {
@@ -284,13 +248,11 @@ def node_rag(state: CRMState) -> CRMState:
             "channel": channel,
             "tone": tone,
             "goal": goal,
-
             "base_target_query": target_query,
             "base_target_summary": target_summary,
             "target_input_summary": target_input_summary,
             "audience_count": audience_count,
             "concern_mapping": resolved,
-
             "evidence": evidence,
             "context": context,
         }
@@ -303,11 +265,16 @@ def node_rag(state: CRMState) -> CRMState:
 
 
 def node_candidates(state: CRMState) -> CRMState:
+    """
+    k=5 고정(후보 5개 유지)
+    다양성은 template_agent에서 해결
+    """
     repo = _repo()
     try:
         run_id = state["run_id"]
         brief = state.get("brief") or {}
         rag = state.get("rag") or {}
+        target = state.get("target") or {}
         channel = state.get("channel") or "PUSH"
         tone = state.get("tone") or "amoremall"
 
@@ -316,14 +283,10 @@ def node_candidates(state: CRMState) -> CRMState:
                 "candidates": [
                     {
                         "template_id": "T001",
-                        "title": "기본 포맷",
-                        "body_with_slots": "안녕하세요 {customer_name}님 :) {product_name} 소식이에요.\n{offer}\n👉 {cta}",
-                    },
-                    {
-                        "template_id": "T002",
-                        "title": "친근 톤",
-                        "body_with_slots": "{customer_name}님 :) 반가워요!\n{product_name} 관련 안내예요.\n{offer}\n👉 지금 확인: {cta}",
-                    },
+                        "title": "A1_초간단_한줄형(LOCAL_FALLBACK)",
+                        "body_with_slots": "{customer_name}님, {product_name}\n{offer}\n{cta}",
+                        "variants": [],
+                    }
                 ]
             }
         else:
@@ -332,6 +295,8 @@ def node_candidates(state: CRMState) -> CRMState:
                 channel=channel,
                 tone=tone,
                 rag_context=rag.get("context", ""),
+                target=target,
+                k=5,  # 후보 5개 유지
             )
 
         repo.create_handoff(run_id, ST_TEMPLATE_CANDIDATES, candidates)
@@ -369,13 +334,6 @@ def node_compliance(state: CRMState) -> CRMState:
 
 
 def node_execute(state: CRMState) -> CRMState:
-    """
-    (옵션) 실행 에이전트 단계
-    - 현재 Template Agent MVP에서는 Step2까지만 쓰지만,
-      run_with_selection() 경로에서 필요할 수 있어 유지.
-    - ✅ TARGET의 audience.user_ids를 execution에 넘기고 싶으면,
-      execution_agent.generate_final_message 쪽 시그니처에서 받을 수 있게 확장하면 됨.
-    """
     repo = _repo()
     try:
         run_id = state["run_id"]
@@ -392,12 +350,7 @@ def node_execute(state: CRMState) -> CRMState:
             selected = h["payload_json"]
 
         if generate_final_message is None:
-            final_text = (selected.get("body_with_slots") or "").format(
-                customer_name="{customer_name}",
-                product_name="{product_name}",
-                offer="{offer}",
-                cta="{cta}",
-            )
+            final_text = (selected.get("body_with_slots") or "")
             result = {
                 "final_message": final_text,
                 "used_template_id": selected.get("template_id"),
@@ -405,16 +358,13 @@ def node_execute(state: CRMState) -> CRMState:
                 "audience_count": audience.get("count", 0),
             }
         else:
-            # ✅ 필요하면 generate_final_message에 target/audience까지 넘기도록 확장 가능
             result = generate_final_message(
                 brief=brief,
                 selected_template=selected,
                 rag_context=rag.get("context", ""),
-                # audience=audience,  # <- execution_agent가 받게 바꾸면 여기 주석 해제
             )
 
         repo.create_handoff(run_id, ST_EXECUTION_RESULT, result)
-
         repo.update_run(
             run_id,
             step_id="S6_EXEC",
