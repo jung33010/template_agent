@@ -2,6 +2,7 @@
     --ap-navy:#031B57;
     --ap-bg-soft:#F4F6F9;
     --ap-border:#E2E8F0;
+    --ap-border-strong:#CBD5E1;
     --ap-text-main:#0F172A;
     --ap-text-sub:#64748B;
     --ap-success:#2ECC71;
@@ -14,6 +15,7 @@
     --radius-md:12px;
     --shadow-lg:0 30px 60px rgba(0,0,0,.25);
     --shadow-md:0 12px 28px rgba(2,6,23,.12);
+    --shadow-sm:0 6px 16px rgba(2,6,23,.06);
 }
 
 *{ margin:0; padding:0; box-sizing:border-box; font-family:Pretendard, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Noto Sans KR", sans-serif; }
@@ -88,7 +90,7 @@
     font-size:1.02rem;
     font-weight:950;
     color:var(--ap-text-main);
-    margin:0 0 12px;
+    margin:0;
     display:flex; align-items:center; gap:8px;
 }
 .section-h i{ color: var(--ap-navy); }
@@ -102,147 +104,175 @@
     box-shadow: 0 18px 26px rgba(2,6,23,.06);
 }
 
-.final-preview-card{
-    background:#F8FAFC;
-    border:1px dashed var(--ap-border);
-    border-radius: var(--radius-md);
-    padding:14px 14px;
+/* Top row inside panel */
+.panel-top{
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-start;
+    gap:12px;
 }
-.card-tag{
+
+/* Cards */
+.template-card-list{
+    padding: 14px 0 0;
+}
+.subtle-top-gap{
+    padding-top: 12px;
+}
+
+.t-card{
+    border: 1px solid var(--ap-border);
+    border-radius: var(--radius-lg);
+    padding: 16px;
+    background: #fff;
+    transition: transform .12s, box-shadow .2s, border-color .2s;
+    box-shadow: var(--shadow-sm);
+}
+.t-card:hover{
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-md);
+    border-color: var(--ap-border-strong);
+}
+
+.t-header{
+    display:flex;
+    justify-content: space-between;
+    align-items:center;
+    margin-bottom: 12px;
+}
+
+.badge-gold{
+    background: rgba(255,215,0,.22);
+    color: #7A5C00;
+    border: 1px solid rgba(255,215,0,.35);
+    font-size: 0.72rem;
+    font-weight: 950;
+    padding: 5px 10px;
+    border-radius: 999px;
+    letter-spacing: .4px;
     display:inline-flex;
     align-items:center;
-    gap:8px;
-    font-size:.86rem;
-    font-weight:950;
-    color:var(--ap-navy);
-    background: rgba(3,27,87,.08);
-    padding:6px 10px;
-    border-radius:999px;
-    margin-bottom:10px;
+    gap:6px;
 }
-.template-content{
-    color:var(--ap-text-main);
-    font-size: 0.98rem;
-    line-height:1.65;
-}
-.slot-tag{
-    background: rgba(3,27,87,.10);
+
+.badge-soft{
+    background: rgba(3,27,87,.06);
     color: var(--ap-navy);
-    padding: 2px 6px;
-    border-radius: 6px;
+    border: 1px solid rgba(3,27,87,.14);
+    font-size: 0.72rem;
+    font-weight: 950;
+    padding: 5px 10px;
+    border-radius: 999px;
+    letter-spacing: .4px;
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+}
+
+.t-meta{
+    font-size: 0.86rem;
+    color: #94A3B8;
+    font-weight: 800;
+}
+
+.t-body{
+    font-size: 1rem;
+    line-height: 1.6;
+    margin-bottom: 14px;
+    font-weight: 650;
+    color: #334155;
+}
+
+.pill-slot{
+    display:inline-flex;
+    align-items:center;
+    padding: 2px 8px;
+    border-radius: 999px;
+    background: rgba(3,27,87,.08);
+    border: 1px solid rgba(3,27,87,.14);
+    color: var(--ap-navy);
+    font-weight: 950;
+    font-size: .88rem;
+    vertical-align: middle;
+}
+
+/* Footer */
+.t-footer{
+    display:flex;
+    justify-content: space-between;
+    align-items:center;
+    gap: 12px;
+    padding-top: 12px;
+    border-top: 1px dashed var(--ap-border);
+}
+
+.guard-status{
+    display:flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    font-size: 0.86rem;
     font-weight: 900;
 }
-
-.decision-btns{
-    display:flex;
-    gap:12px;
-    margin-top:6px;
-}
-.btn-decision{
-    flex:1;
-    min-height:52px;
-    border:1px solid var(--ap-border);
-    background:#fff;
-    color:var(--ap-text-main);
-    font-weight:950;
-    font-size:1rem;
-    padding:12px 14px;
-    border-radius: 14px;
-    cursor:pointer;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    gap:10px;
-    transition: transform .06s, box-shadow .2s, border-color .2s, background .2s;
-}
-.btn-decision:active{ transform: translateY(1px); }
-.btn-decision.approve i{ color: var(--ap-success); font-size:1.05rem; }
-.btn-decision.reject i{ color: var(--ap-danger); font-size:1.05rem; }
-
-.btn-decision.active{
-    border-color: rgba(3,27,87,.55);
-    box-shadow: 0 18px 26px rgba(2,6,23,.10);
-    background: rgba(3,27,87,.04);
-}
-.btn-decision.approve.active{
-    border-color: rgba(46,204,113,.55);
-    background: rgba(46,204,113,.08);
-}
-.btn-decision.reject.active{
-    border-color: rgba(239,68,68,.55);
-    background: rgba(239,68,68,.08);
-}
-
-.comment-section{ margin-top:14px; }
-.main-textarea{
-    width:100%;
-    min-height:110px;
-    border:1px solid var(--ap-border);
-    border-radius: var(--radius-md);
-    padding:12px 12px;
-    font-size: .95rem;
-    line-height:1.55;
-    outline:none;
-}
-.main-textarea:focus{
-    border-color: rgba(3,27,87,.35);
-    box-shadow: 0 0 0 4px rgba(3,27,87,.12);
-}
-
-/* Approval history */
-.empty-note{
-    color: var(--ap-text-sub);
-    font-size: .95rem;
-    padding: 6px 2px;
-}
-.history-row{
-    border:1px solid var(--ap-border);
-    border-radius: var(--radius-md);
-    padding: 12px 12px;
-    margin-bottom: 10px;
-    background:#fff;
-}
-.history-meta{
-    display:flex;
-    gap:10px;
-    flex-wrap:wrap;
-    align-items:center;
-    margin-bottom:8px;
-}
-.meta-item{
-    color: var(--ap-text-sub);
-    font-size: .9rem;
-    display:inline-flex;
-    align-items:center;
-    gap:6px;
-}
-.pill{
-    display:inline-flex;
-    align-items:center;
-    gap:6px;
-    padding:6px 10px;
-    border-radius:999px;
-    font-weight:950;
-    font-size:.82rem;
-}
-.pill.approved{
+.guard-status .pass{
     color: var(--ap-success);
-    background: rgba(46,204,113,0.12);
+    background: rgba(46, 204, 113, 0.10);
+    border: 1px solid rgba(46, 204, 113, 0.16);
+    padding: 4px 10px;
+    border-radius: 999px;
+    display:inline-flex;
+    align-items:center;
+    gap: 6px;
 }
-.pill.rejected{
-    color: var(--ap-danger);
-    background: rgba(239,68,68,0.12);
+
+.hint-note{
+    margin-top: 10px;
+    font-size: .9rem;
+    color: var(--ap-text-sub);
 }
-.pill.unknown{
-    color: #64748B;
-    background: rgba(100,116,139,0.12);
+
+.view-all-details{
+    margin-top: 12px;            /* LATEST 바로 아래 */
+    border-top: 1px dashed var(--ap-border);
+    padding-top: 10px;
 }
-.history-comment{
-    color: var(--ap-text-main);
-    font-size: .95rem;
-    line-height:1.55;
+.view-all-details summary{
+    list-style:none;
 }
-.history-comment .muted{ color: var(--ap-text-sub); }
+.view-all-details summary::-webkit-details-marker{
+    display:none;
+}
+.view-all{
+    font-size: 0.9rem;
+    color: var(--ap-navy);
+    font-weight: 900;
+    text-decoration:none;
+    display:inline-flex;
+    align-items:center;
+    gap: 6px;
+    padding: 6px 10px;
+    border-radius: 10px;
+    cursor:pointer;
+    transition: background .15s;
+    user-select:none;
+}
+.view-all:hover{
+    background: rgba(3,27,87,.06);
+}
+
+.target-preview-box {
+    margin-top: 14px;
+    background: linear-gradient(180deg, #0B1B56, #06143F);
+    color: #fff;
+    border-radius: var(--radius-lg);
+    padding: 16px 18px;
+    box-shadow: 0 14px 30px rgba(3,27,87,.18);
+    border: 1px solid rgba(255,255,255,.10);
+}
+.preview-info { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+.p-label { font-size: 0.92rem; font-weight: 700; opacity: 0.85; }
+.p-count { font-size: 1.85rem; font-weight: 950; color: var(--ap-accent); letter-spacing: -0.6px; }
+.p-count small { font-size: 0.85rem; font-weight: 600; color: rgba(255,255,255,.85); }
+.p-desc { font-size: 0.85rem; opacity: 0.8; margin-top: 6px; line-height: 1.5; }
 
 /* Footer actions */
 .modal-actions{
@@ -257,6 +287,7 @@
     position: sticky;
     bottom: 0;
 }
+
 .btn-cancel{
     border:1px solid var(--ap-border);
     background:#fff;
@@ -271,6 +302,7 @@
     border-color:#CBD5E1;
     background:#F8FAFC;
 }
+
 .btn-submit-main{
     background: var(--ap-navy);
     color:#fff;
@@ -300,39 +332,48 @@
 .btn-submit-main:hover .btn-icon{ background: var(--ap-accent); }
 .btn-submit-main:hover .btn-icon i{ color: var(--ap-navy); }
 
-/* Toast */
-.toast{
-    position: fixed;
-    left: 50%;
-    bottom: 28px;
-    transform: translate(-50%, 16px);
-    opacity: 0;
-    z-index: 9999;
-    transition: opacity .18s, transform .18s;
-}
-.toast.show{
-    opacity: 1;
-    transform: translate(-50%, 0);
-}
-.toast-inner{
-    display:flex;
-    align-items:center;
-    gap:10px;
-    padding: 12px 14px;
-    border-radius: 14px;
-    background: rgba(15,23,42,.92);
-    color:#fff;
-    box-shadow: 0 18px 34px rgba(2,6,23,.22);
-    border: 1px solid rgba(148,163,184,.18);
-    font-weight: 900;
-}
-.toast.success i{ color: var(--ap-success); }
-.toast.warn i{ color: var(--ap-warn); }
-
 @media (max-width: 720px){
     .modal-scroll-area{ padding:18px 16px 24px; }
     .modal-progress{ padding:14px 16px; }
     .modal-actions{ padding:14px 16px; }
-    .decision-btns{ flex-direction:column; }
-    .btn-decision{ width:100%; }
+    .panel-top{
+        flex-direction: column;
+        align-items:flex-start;
+    }
+}
+
+/* =========================================================
+   Step4: "전체보기"로 펼쳐지는 목록(#filled-all-wrap)만 내부 스크롤
+   - 다른 레이아웃은 그대로 유지
+   - 아래가 잘리는 문제를 목록 내부 스크롤로 회피
+   ========================================================= */
+#filled-all-wrap{
+    /* 화면 크기에 따라 적절히 제한 (원하면 숫자만 조절) */
+    max-height: min(46vh, 420px);
+
+    overflow-y: auto;
+    overflow-x: hidden;
+
+    /* 스크롤바가 콘텐츠를 가리지 않게 약간 여백 */
+    padding-right: 8px;
+
+    /* 스크롤 영역이 위아래로 구분되도록 (가볍게) */
+    margin-top: 10px;
+}
+
+#filled-all-wrap{
+    scrollbar-gutter: stable;
+}
+
+#filled-all-wrap::-webkit-scrollbar{
+    width: 10px;
+}
+#filled-all-wrap::-webkit-scrollbar-thumb{
+    background: rgba(3,27,87,.18);
+    border-radius: 999px;
+    border: 3px solid transparent;
+    background-clip: content-box;
+}
+#filled-all-wrap::-webkit-scrollbar-track{
+    background: transparent;
 }
