@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="./css/second.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <title>Amore Pacific - Step 2</title>
+</head>
+<body>
+<div class="modal-overlay page-bg">
+    <div class="modal-container page-card">
+        <div class="modal-progress">
+            <div class="progress-track">
+                <div class="step"><div class="circle check"><i class="bi bi-check"></i></div><span class="label">브리프 입력</span></div>
+                <div class="line active"></div>
+                <div class="step active"><div class="circle">2</div><span class="label">후보 생성·검증</span></div>
+                <div class="line"></div>
+                <div class="step"><div class="circle">3</div><span class="label">최종 승인</span></div>
+            </div>
+        </div>
+
+        <div class="modal-scroll-area">
+            <div class="modal-intro">
+                <h2>AI 후보 생성 및 검증</h2>
+                <p>가드레일 정책을 준수하는 최적의 메시지 후보를 탐색 중입니다.</p>
+            </div>
+
+            <div class="agent-log-container">
+                <div class="log-header">
+                    <span class="log-title"><i class="bi bi-terminal"></i> Verification Log</span>
+                    <span class="log-status pulse">Processing...</span>
+                </div>
+                <div class="log-body">
+                    <div class="log-item success">[Compliance] 뷰티 금칙어 12건 필터링 완료</div>
+                    <div class="log-item success">[Tone] 브랜드 페르소나(amoremall) 일치율 96%</div>
+                    <div class="log-item loading">[Fact-check] 실시간 재고 기반 데이터 대조 중...</div>
+                </div>
+            </div>
+
+            <div class="candidate-container">
+                <h3 class="section-h"><i class="bi bi-card-checklist"></i> 템플릿 후보 리스트</h3>
+
+                <!-- JS(main.js)가 여기에 candidates 5개를 렌더링 -->
+                <div id="candidate-list"></div>
+            </div>
+        </div>
+
+        <div class="modal-actions">
+            <button class="btn-cancel">재생성 요청</button>
+            <button class="btn-submit-main">
+                <span>이 후보로 확정</span>
+                <div class="btn-icon">
+                    <i class="bi bi-check-lg"></i>
+                </div>
+            </button>
+        </div>
+    </div>
+</div>
+</body>
+</html>

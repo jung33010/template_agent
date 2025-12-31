@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="./css/third.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" />
+    <title>Amore Pacific - Step 3</title>
+</head>
+<body>
+<div class="modal-overlay page-bg">
+    <div class="modal-container page-card">
+        <div class="modal-progress">
+            <div class="progress-track">
+                <div class="step"><div class="circle check"><i class="bi bi-check"></i></div><span class="label">브리프 입력</span></div>
+                <div class="line active"></div>
+                <div class="step"><div class="circle check"><i class="bi bi-check"></i></div><span class="label">후보 생성·검증</span></div>
+                <div class="line active"></div>
+                <div class="step active"><div class="circle">3</div><span class="label">최종 승인</span></div>
+            </div>
+        </div>
+
+        <div class="modal-scroll-area">
+            <div class="modal-intro">
+                <h2>최종 검토 및 승인</h2>
+                <p>선택하신 후보를 검토하고 승인/반려 결정을 저장합니다.</p>
+            </div>
+
+            <div class="panel">
+                <h3 class="section-h"><i class="bi bi-file-earmark-check"></i> 선택된 템플릿</h3>
+                <div class="final-preview-card">
+                    <div class="card-tag">Selected - 선택된 템플릿</div>
+                    <div class="template-content">
+                        [선택된 템플릿 로딩 중...]
+                    </div>
+                </div>
+            </div>
+
+            <div class="panel">
+                <h3 class="section-h"><i class="bi bi-hand-thumbs-up"></i> 승인 여부 결정</h3>
+                <div class="decision-btns">
+                    <button type="button" class="btn-decision approve" id="btnApprove">
+                        <i class="bi bi-check-circle-fill"></i> 승인
+                    </button>
+                    <button type="button" class="btn-decision reject" id="btnReject">
+                        <i class="bi bi-x-circle-fill"></i> 반려
+                    </button>
+                </div>
+
+                <div class="comment-section" id="commentArea">
+                    <h3 class="section-h"><i class="bi bi-chat-dots"></i> 마케터 코멘트 (선택사항)</h3>
+                    <textarea class="main-textarea" placeholder="승인 또는 반려 사유를 입력해주세요. (예: 문구 일부 수정 필요, 혜택 강조 적절 등)"></textarea>
+                </div>
+            </div>
+
+            <div class="panel">
+                <h3 class="section-h"><i class="bi bi-clock-history"></i> 승인/반려 이력</h3>
+                <div id="approval-history"></div>
+            </div>
+        </div>
+
+        <div class="modal-actions">
+            <button class="btn-cancel" onclick="history.back()">이전으로</button>
+            <button class="btn-submit-main" id="btnSave">
+                <span>결정 저장</span>
+                <div class="btn-icon"><i class="bi bi-database-fill-up"></i></div>
+            </button>
+        </div>
+    </div>
+</div>
+</body>
+</html>

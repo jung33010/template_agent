@@ -205,3 +205,36 @@ cython_debug/
 marimo/_static/
 marimo/_lsp/
 __marimo__/
+
+# 추가
+# IntelliJ / JetBrains
+.idea/
+*.iml
+out/
+
+# Node.js / Vite / Streamlit Custom Component
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+components/**/frontend/node_modules/
+components/**/frontend/dist/
+components/**/frontend/.vite/
+components/**/frontend/.cache/
+
+# Streamlit
+.streamlit/
+.streamlit/config.toml
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+
+# Logs & cache
+*.log
+logs/
+.cache/
+tmp/

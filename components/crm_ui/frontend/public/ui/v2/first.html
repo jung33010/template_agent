@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="./css/first.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" />
+    <title>Amore Template Agent - Step 1</title>
+</head>
+<body>
+<div class="modal-overlay page-bg">
+    <div class="modal-container page-card">
+        <div class="modal-progress">
+            <div class="progress-track">
+                <div class="step active">
+                    <div class="circle">1</div>
+                    <span class="label">타겟 설정</span>
+                </div>
+                <div class="line"></div>
+                <div class="step">
+                    <div class="circle">2</div>
+                    <span class="label">후보 생성·검증</span>
+                </div>
+                <div class="line"></div>
+                <div class="step">
+                    <div class="circle">3</div>
+                    <span class="label">최종 승인</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal-scroll-area">
+            <div class="modal-intro">
+                <h2>캠페인 브리프 입력</h2>
+                <p>마케터의 의도를 입력하면 Template Agent가 맞춤형 슬롯을 설계합니다.</p>
+            </div>
+
+            <form class="req-form" id="briefForm">
+                <div class="form-section-box">
+                    <h3 class="section-h"><i class="bi bi-chat-left-text"></i> 마케팅 목표 설정</h3>
+
+                    <div class="field mb-15">
+                        <label>created_by (마케터/사용자 ID)</label>
+                        <input id="createdBy" class="main-textarea"
+                               style="min-height:unset;height:44px;resize:none;"
+                               placeholder="marketer_001" value="marketer_001" />
+                    </div>
+
+                    <div class="field mb-15">
+                        <label>Goal (캠페인 목적)</label>
+                        <select class="main-select" id="goalSelect">
+                            <option value="cart" selected>장바구니 회수 (Cart Recovery)</option>
+                            <option value="repurchase">재구매 유도 (Repurchase)</option>
+                            <option value="counseling">뷰티 카운슬링 / 상품 추천</option>
+                        </select>
+                    </div>
+
+                    <div class="input-grid">
+                        <div class="field">
+                            <label>발송 채널</label>
+                            <select class="main-select" id="channelSelect">
+                                <option>PUSH</option>
+                                <option>SMS</option>
+                                <option>KAKAO</option>
+                            </select>
+                        </div>
+                        <div class="field">
+                            <label>브랜드 톤(Persona)</label>
+                            <select class="main-select" id="toneSelect">
+                                <option>amoremall</option>
+                                <option>innisfree</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="field mt-20">
+                        <label>상품 추천 캠페인 상세 전략 (Prompt)</label>
+                        <textarea
+                                id="campaignText"
+                                class="main-textarea"
+                                disabled
+                                placeholder="※ '뷰티 카운슬링 / 상품 추천' 선택 시에만 입력할 수 있어요."></textarea>
+                    </div>
+                </div>
+
+                <div class="form-section-box">
+                    <h3 class="section-h"><i class="bi bi-people"></i> 타겟팅 설정 (Targeting)</h3>
+
+                    <div class="input-grid">
+                        <div class="field">
+                            <label>연령대</label>
+                            <select class="main-select" id="ageSelect">
+                                <!-- 기본값: 전체 연령 -->
+                                <option value="all" selected>전체 연령</option>
+                                <option value="10">10대</option>
+                                <option value="20">20대</option>
+                                <option value="30">30대</option>
+                                <option value="2030">2030 세대</option>
+                                <option value="40">40대</option>
+                                <option value="50">50대 이상</option>
+                                <option value="4050">4050 세대</option>
+                            </select>
+                        </div>
+                        <div class="field">
+                            <label>성별</label>
+                            <select class="main-select" id="genderSelect">
+                                <!-- 기본값: 선택 안함 -->
+                                <option value="ALL" selected>선택 안함</option>
+                                <option value="F">여성 (Female)</option>
+                                <option value="M">남성 (Male)</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="field mt-15">
+                        <label>피부타입 (고객 피처 데이터)</label>
+                        <select class="main-select" id="skinSelect">
+                            <!-- 기본값: 선택 안함 -->
+                            <option value="ALL" selected>선택 안함</option>
+                            <option value="dry">건성 (Dry)</option>
+                            <option value="oily">지성 (Oily)</option>
+                            <option value="complex">복합성 (Combination)</option>
+                        </select>
+                    </div>
+
+                    <div class="field mt-15">
+                        <label>피부고민 (키워드)</label>
+                        <select class="main-select" id="concernSelect">
+                            <!-- 기본값: 선택 안함 -->
+                            <option value="" selected>선택 안함</option>
+                            <option value="민감성">민감성</option>
+                            <option value="트러블">트러블</option>
+                            <option value="탄력없음">탄력없음</option>
+                            <option value="주름">주름</option>
+                            <option value="칙칙함">칙칙함</option>
+                            <option value="건조함">건조함</option>
+                            <option value="모공">모공</option>
+                            <option value="고민없음">고민없음</option>
+                        </select>
+                    </div>
+
+                    <div class="target-preview-box">
+                        <div class="preview-info">
+                            <span class="p-label"><i class="bi bi-search"></i> 추출된 타겟 명수</span>
+                            <span class="p-count"><span id="target-count">0</span> <small>명</small></span>
+                        </div>
+                        <p class="p-desc">
+                            타겟 조건 선택 시 즉시 명수가 계산됩니다.
+                            <br />
+                            <span style="opacity:.9;">Run ID: <b id="run-id-text">-</b></span>
+                        </p>
+                    </div>
+                </div>
+
+                <div class="modal-actions">
+                    <div class="actions-left">
+                        <button type="button" class="btn-cancel" id="btn-cancel-step1">
+                            <i class="bi bi-x-lg"></i> 취소 및 닫기
+                        </button>
+                    </div>
+                    <div class="actions-right">
+                        <button type="submit" class="btn-submit-main">
+                            <span>AI 템플릿 생성 시작</span>
+                            <div class="btn-icon">
+                                <i class="bi bi-play-fill"></i>
+                            </div>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="policy-status-card">
+                    <div class="policy-header">
+                        <div class="header-left">
+                            <span class="safe-badge"><i class="bi bi-shield-check-fill"></i> System Guardrail Active</span>
+                            <p class="policy-desc">기획서 정책에 따라 안전 검증이 자동 실행됩니다.</p>
+                        </div>
+                        <div class="header-right">
+                            <span class="status-indicator" id="policy-status">검증 대기 중</span>
+                        </div>
+                    </div>
+                    <ul class="policy-grid">
+                        <li><i class="bi bi-check2"></i> 뷰티 금칙어 필터링</li>
+                        <li><i class="bi bi-check2"></i> 허위·과장 표현 방지</li>
+                        <li><i class="bi bi-check2"></i> 실시간 재고/가격 대조</li>
+                        <li><i class="bi bi-check2"></i> 브랜드 톤앤매너 준수</li>
+                    </ul>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+</body>
+</html>
