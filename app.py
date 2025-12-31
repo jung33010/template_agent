@@ -952,13 +952,13 @@ elif ui_page == "fourth":
     rid = (st.session_state.get("run_id") or "").strip()
     result = fetch_step4_data(db, repo, rid)
 
-    # ▼▼▼ [이 부분이 핵심입니다] ▼▼▼
-    # 세션에 저장된 결과가 있다면 result 딕셔너리에 추가해서 프론트엔드로 보냅니다.
+    # ▼▼▼ [이 4줄을 꼭 추가해야 화면에 뜹니다!] ▼▼▼
+    # 방금 로직이 계산해서 세션에 담아둔 결과를 꺼내서 UI로 보냅니다.
     if "step4_results" in st.session_state:
         result["generated_messages"] = st.session_state["step4_results"]
     else:
-        result["generated_messages"] = [] # 데이터가 없을 경우 빈 리스트
-    # ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲
+        result["generated_messages"] = []
+    # ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲
 
 else:
     result = {}

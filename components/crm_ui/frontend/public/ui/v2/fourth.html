@@ -25,88 +25,28 @@
         <div class="modal-scroll-area">
             <div class="modal-intro">
                 <h2>최종 확인 및 발송</h2>
-                <p>Product Agent가 슬롯을 채운 최종 문구를 확인하고 발송합니다.</p>
+                <p>생성된 개인화 메시지를 최종 확인하고 발송합니다.</p>
             </div>
 
-            <!-- Product Agent: Filled template (latest 1 + view all under latest) -->
             <div class="panel">
                 <div class="panel-top">
-                    <h3 class="section-h"><i class="bi bi-send-check"></i> Product Agent: 최종 승인 발송 내용</h3>
+                    <h3 class="section-h"><i class="bi bi-send-check"></i> 메시지 생성 결과</h3>
                 </div>
 
                 <div class="template-card-list" id="filled-card-wrap">
-                    <!-- 최신 1개(기본 노출) -->
-                    <div class="t-card">
-                        <div class="t-header">
-                            <span class="badge-gold"><i class="bi bi-stars"></i> LATEST</span>
-                            <div class="t-meta">Variant A · 2025-12-31</div>
-                        </div>
-
-                        <div class="t-body">
-                            <strong>[최종 발송] 오늘의 보습 루틴, 한 번에 정리</strong><br/>
-                            하이하이 고객님, 제품명1 를 루틴에 추가해 보세요.<br/>
-                            건조함이 느껴질 땐 ㅇㄹㅇㄹㅇㄹㅇ 로 마무리하면 좋아요. ~~~~~~
-                        </div>
-
-                        <div class="t-footer">
-                            <div class="guard-status">
-                                <span class="pass"><i class="bi bi-shield-check"></i> Guardrail</span>
-                            </div>
-                        </div>
+                    <div style="padding:40px; text-align:center; color:#94a3b8; background:#f8fafc; border-radius:12px; border:1px dashed #cbd5e1;">
+                        <span class="spinner-border" role="status" style="display:inline-block; width:1.2rem; height:1.2rem; border:.2em solid currentColor; border-right-color:transparent; border-radius:50%; animation:.75s linear infinite spinner-border; margin-bottom:8px;"></span><br/>
+                        결과를 불러오는 중입니다...
                     </div>
-
-                    <details class="view-all-details" id="filled-viewall">
-                        <summary class="view-all">
-                            전체보기 <i class="bi bi-arrow-right"></i>
-                        </summary>
-
-                        <div class="template-card-list subtle-top-gap" id="filled-all-wrap">
-                            <div class="t-card">
-                                <div class="t-header">
-                                    <span class="badge-soft"><i class="bi bi-check2-circle"></i> READY</span>
-                                    <div class="t-meta">Variant B · 2025-12-31</div>
-                                </div>
-                                <div class="t-body">
-                                    <strong>[최종 발송] 겨울 보습 루틴, 오늘도 가볍게</strong><br/>
-                                    하이하이 고객님, 상품명1 로 토너→세럼→크림 루틴을 이어가 보세요.<br/>
-                                    끈적임 부담은 줄이고, 촉촉함은 오래 가도록 도와드려요. ~~~~
-                                </div>
-                                <div class="t-footer">
-                                    <div class="guard-status">
-                                        <span class="pass"><i class="bi bi-shield-check"></i> Guardrail</span>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="t-card" style="margin-top:12px;">
-                                <div class="t-header">
-                                    <span class="badge-soft"><i class="bi bi-check2-circle"></i> READY</span>
-                                    <div class="t-meta">Variant C · 2025-12-31</div>
-                                </div>
-                                <div class="t-body">
-                                    <strong>[최종 발송] 당김 느껴지기 전, 보습 리필 타이밍</strong><br/>
-                                    하이하이 고객님이 쓰시던 상품명1 , 지금 루틴에 다시 더해보세요.<br/>
-                                    피부 컨디션에 맞춰 사용 순서/양을 조절해 주세요. 궁금하시면 ~~~~~
-                                </div>
-                                <div class="t-footer">
-                                    <div class="guard-status">
-                                        <span class="pass"><i class="bi bi-shield-check"></i> Guardrail</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </details>
                 </div>
             </div>
 
             <div class="target-preview-box">
                 <div class="preview-info">
-                    <span class="p-label"><i class="bi bi-search"></i> 최종 타겟 명수</span>
-                    <span class="p-count"><span id="final-target-count">1280</span> <small>명</small></span>
+                    <span class="p-label"><i class="bi bi-people-fill"></i> 발송 대상</span>
+                    <span class="p-count"><span id="final-target-count">-</span> <small>명</small></span>
                 </div>
                 <p class="p-desc">
-                    승인된 타겟 기준으로 최종 발송 명수입니다.
-                    <br />
                     <span style="opacity:.9;">Run ID: <b id="run-id-text">-</b></span>
                 </p>
             </div>

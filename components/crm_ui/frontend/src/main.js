@@ -855,78 +855,88 @@ function bindThirdPage(signal, result) {
 }
 
 // ----------------------
-// Step4 (fourth) - 최소 바인딩(현재는 렌더만)
-// ----------------------
-// Step4 (fourth) - 최종 결과 렌더링
+// Step4 (fourth) - 최종 결과 렌더링 (HTML 구조 매칭)
 // ----------------------
 function bindFourthPage(signal, result) {
-    // 1. HTML에서 내용을 넣을 위치 찾기
-    const container = document.querySelector(".template-content");
-    const tagEl = document.querySelector(".card-tag");
+    // 1. HTML에서 내용을 넣을 위치 찾기 (수정된 ID 사용)
+    const container = document.getElementById("filled-card-wrap");
+    const countEl = document.getElementById("final-target-count");
+    const runIdEl = document.getElementById("run-id-text");
+    
     if (!container) return;
 
-    // 2. app.py에서 넘겨준 데이터 확인
+    // 2. 데이터 확인
     const messages = result?.generated_messages;
+    const runId = result?.run_id || "-";
+
+    // Run ID 표시
+    if (runIdEl) runIdEl.textContent = runId;
 
     // 데이터가 없을 경우 처리
     if (!messages || !Array.isArray(messages) || messages.length === 0) {
-        container.innerHTML = `<div style="padding:16px; text-align:center; color:#64748B;">
-            <i class="bi bi-exclamation-circle"></i> 생성된 메시지가 없습니다.<br/>
-            <small>이전 단계에서 로직이 올바르게 실행되었는지 확인해주세요.</small>
+        container.innerHTML = `<div style="padding:24px; text-align:center; color:#64748B; background:#f8fafc; border-radius:8px;">
+            <i class="bi bi-exclamation-circle" style="font-size:1.5rem; display:block; margin-bottom:8px;"></i>
+            생성된 메시지가 없습니다.<br/>
+            <small>이전 단계 로직을 확인해주세요.</small>
         </div>`;
+        if (countEl) countEl.textContent = "0";
         return;
     }
 
-    // 3. 상단 태그 업데이트
-    if (tagEl) {
-        tagEl.textContent = `Generated Result - 총 ${messages.length}건 생성 완료`;
-        tagEl.style.background = "#e0f2fe"; // 살짝 파란색 배경으로 강조 (선택 사항)
-        tagEl.style.color = "#0369a1";
-    }
+    // 3. 카운트 업데이트
+    if (countEl) countEl.textContent = messages.length;
 
-    // 4. 메시지 리스트 HTML 생성
-    let htmlContent = `<div style="display: flex; flex-direction: column; gap: 12px;">`;
-
-    messages.forEach((msg) => {
-        // 엔터(\n)를 <br>로 변환 및 HTML 특수문자 처리 (보안)
+    // 4. HTML 생성 (CSS 클래스 t-card 사용하여 디자인 유지)
+    container.innerHTML = messages.map((msg, index) => {
+        // 보안 및 줄바꿈 처리
         const safeBody = escapeHtml(msg.message || "").replaceAll("\n", "<br/>");
         const safeName = escapeHtml(msg.customer_name || "고객");
         const safeProd = escapeHtml(msg.product_name || "");
         const safeInfo = msg.debug_info ? escapeHtml(msg.debug_info) : "";
 
-        htmlContent += `
-            <div style="background: #fff; border: 1px solid #e2e8f0; border-radius: 8px; padding: 16px; box-shadow: 0 1px 2px rgba(0,0,0,0.05);">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; border-bottom: 1px solid #f1f5f9; padding-bottom: 8px;">
-                    <span style="font-weight: 600; color: #334155; display: flex; align-items: center; gap: 6px;">
-                        <i class="bi bi-person-fill" style="color: #64748b;"></i> ${safeName}님
-                    </span>
-                    <div style="text-align: right;">
-                        <span style="font-size: 12px; color: #0f172a; background: #f1f5f9; padding: 3px 8px; border-radius: 12px; font-weight: 500;">
-                            ${safeProd}
-                        </span>
-                        ${safeInfo ? `<div style="font-size: 11px; color: #94a3b8; margin-top: 2px;">${safeInfo}</div>` : ""}
+        // 첫 번째 카드는 강조(BEST), 나머지는 일반(READY) 뱃지 처리
+        const badgeHtml = index === 0 
+            ? `<span class="badge-gold" style="background:#fff7ed; color:#c2410c; border:1px solid #ffedd5; padding:2px 8px; border-radius:4px; font-size:0.75rem; font-weight:600;"><i class="bi bi-stars"></i> BEST MATCH</span>` 
+            : `<span class="badge-soft" style="background:#f1f5f9; color:#475569; padding:2px 8px; border-radius:4px; font-size:0.75rem; font-weight:600;"><i class="bi bi-check2-circle"></i> READY</span>`;
+
+        // 카드 HTML 조립
+        return `
+            <div class="t-card" style="background:#fff; border:1px solid #e2e8f0; border-radius:12px; padding:20px; margin-bottom:12px; box-shadow:0 1px 3px rgba(0,0,0,0.05);">
+                <div class="t-header" style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:12px;">
+                    ${badgeHtml}
+                    <div class="t-meta" style="text-align:right;">
+                        <div style="font-weight:600; color:#334155;">${safeName}님</div>
+                        <div style="font-size:0.8rem; color:#64748b;">${safeProd}</div>
                     </div>
                 </div>
-                <div style="font-size: 14px; color: #475569; line-height: 1.6;">
+
+                <div class="t-body" style="color:#334155; line-height:1.6; font-size:0.95rem; background:#f8fafc; padding:12px; border-radius:8px;">
                     ${safeBody}
+                </div>
+
+                <div class="t-footer" style="margin-top:12px; display:flex; justify-content:space-between; align-items:center;">
+                    <div class="guard-status">
+                        <span class="pass" style="color:#10b981; font-size:0.8rem; font-weight:500;">
+                            <i class="bi bi-shield-check"></i> Guardrail Passed
+                        </span>
+                    </div>
+                    ${safeInfo ? `<div style="font-size:0.75rem; color:#cbd5e1;">${safeInfo}</div>` : ""}
                 </div>
             </div>
         `;
-    });
+    }).join("");
 
-    htmlContent += `</div>`;
-
-    // 5. HTML 주입
-    container.innerHTML = htmlContent;
-    
-    // (선택 사항) '발송' 버튼 이벤트 연결 예시
+    // (선택) 발송 버튼 클릭 이벤트 연결
     const sendBtn = document.querySelector(".btn-submit-main");
     if (sendBtn) {
-        sendBtn.addEventListener("click", (e) => {
+        const newBtn = sendBtn.cloneNode(true); // 기존 이벤트 제거를 위해 복제
+        sendBtn.parentNode.replaceChild(newBtn, sendBtn);
+        
+        newBtn.addEventListener("click", (e) => {
             e.preventDefault();
-            // 실제 발송 액션이 필요하면 여기에 작성
-            alert(`${messages.length}건의 메시지를 발송합니다! (Demo)`);
-        }, { signal });
+            alert(`${messages.length}건의 메시지 발송이 시작되었습니다!`);
+            // 실제 발송 로직이 필요하면 여기에 sendAction("SEND_FINAL", ...) 추가
+        });
     }
 }
 

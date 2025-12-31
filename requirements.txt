@@ -7,7 +7,7 @@ pymysql==1.1.1
 langgraph==0.2.46
 
 openai==1.51.2
-httpx==0.27.2
+httpx==0.27.2c
 
 pinecone-client==5.0.1
 
