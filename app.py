@@ -287,8 +287,8 @@ def fetch_home_data(db, show_all_pending: bool, show_all_approved: bool) -> dict
                 "ctr": kpi_ctr,
                 "ctr_trend": kpi_ctr_trend,
                 "guard_blocked": kpi_guard_blocked,
-                "pending_candidate": 0,  # 승인/반려 대기
-                "active_assets": 0,      # 승인된 템플릿
+                "pending_candidate": 0,
+                "active_assets": 0,
             },
             "registry": {"approved": 0, "deprecated": 0},
             "pending": {"latest": None, "all": []},
@@ -299,7 +299,6 @@ def fetch_home_data(db, show_all_pending: bool, show_all_approved: bool) -> dict
             },
         }
 
-    # pending = SELECTED_TEMPLATE은 있는데 APPROVAL이 아직 없는 run
     q_pending_cnt = text(
         """
         WITH has_selected AS (
@@ -320,7 +319,6 @@ def fetch_home_data(db, show_all_pending: bool, show_all_approved: bool) -> dict
     )
     pending_cnt = int(db.execute(q_pending_cnt).scalar() or 0)
 
-    # latest pending 1개 = pending run 중 SELECTED_TEMPLATE 최신 1개
     q_pending_latest = text(
         """
         WITH pending_runs AS (
@@ -354,7 +352,7 @@ def fetch_home_data(db, show_all_pending: bool, show_all_approved: bool) -> dict
         pending_latest = {
             "run_id": r_latest.get("run_id"),
             "created_at": make_json_safe(r_latest.get("created_at")),
-            "template": _json_to_dict(r_latest.get("payload_json")),  # selected template
+            "template": _json_to_dict(r_latest.get("payload_json")),
         }
 
     pending_all = []
@@ -395,7 +393,6 @@ def fetch_home_data(db, show_all_pending: bool, show_all_approved: bool) -> dict
                 }
             )
 
-    # registry counts: latest APPROVAL per run 기준
     q_latest_approval = text(
         """
         WITH last_appr AS (
@@ -428,11 +425,9 @@ def fetch_home_data(db, show_all_pending: bool, show_all_approved: bool) -> dict
         elif d == "REJECTED":
             rejected_cnt += 1
 
-    # 승인 템플릿 최신 1개 + (전체보기) 승인 템플릿 리스트
     approved_latest = None
     approved_all = []
 
-    # 최신 1개는 approved_run_ids 기준으로 SELECTED_TEMPLATE 최신을 1개만 뽑아서 사용
     if approved_run_ids:
         latest_rows = _fetch_latest_selected_for_runs(db, approved_run_ids, limit_n=1)
         if latest_rows:
@@ -446,12 +441,12 @@ def fetch_home_data(db, show_all_pending: bool, show_all_approved: bool) -> dict
             "ctr": kpi_ctr,
             "ctr_trend": kpi_ctr_trend,
             "guard_blocked": kpi_guard_blocked,
-            "pending_candidate": pending_cnt,      # 승인/반려 대기함
-            "active_assets": approved_cnt,         # 승인 템플릿 자산
+            "pending_candidate": pending_cnt,
+            "active_assets": approved_cnt,
         },
         "registry": {
-            "approved": approved_cnt,              # 승인
-            "deprecated": rejected_cnt,            # 반려
+            "approved": approved_cnt,
+            "deprecated": rejected_cnt,
         },
         "pending": {"latest": pending_latest, "all": pending_all},
         "approved": {"latest": approved_latest, "all": approved_all},
@@ -574,6 +569,12 @@ def fetch_step3_data(db, repo: Repo, run_id: str) -> dict:
     return out
 
 
+def fetch_step4_data(db, repo: Repo, run_id: str) -> dict:
+    base = fetch_step3_data(db, repo, run_id)
+    base["step"] = "S4_FINAL_CONFIRM_SEND"
+    return base
+
+
 # -------------------------
 # UI -> Streamlit 이벤트 처리
 # -------------------------
@@ -590,6 +591,20 @@ def handle_component_event(evt: dict, db, repo: Repo) -> None:
             return
         st.session_state["_last_event_id"] = event_id
 
+    # ---- NEW: UI navigation helpers ----
+    if action == "NAVIGATE_HOME":
+        st.session_state["requested_page"] = "Home(UI)"
+        st.rerun()
+
+    if action == "NAVIGATE_STEP4":
+        # run_id는 유지(필요시 payload에서 갱신)
+        payload = evt.get("payload") or {}
+        rid = (payload.get("run_id") or st.session_state.get("run_id") or "").strip()
+        if rid:
+            st.session_state["run_id"] = rid
+        st.session_state["requested_page"] = "Step4(최종 확인 및 발송)"
+        st.rerun()
+
     if action == "HOME_TOGGLE_VIEW_ALL_PENDING":
         st.session_state["show_all_pending"] = not bool(st.session_state.get("show_all_pending", False))
         st.rerun()
@@ -602,7 +617,6 @@ def handle_component_event(evt: dict, db, repo: Repo) -> None:
         st.session_state["requested_page"] = "Step1(타겟 설정) → 후보 생성"
         st.rerun()
 
-    # Home에서도 승인/반려 저장
     if action == "HOME_SAVE_APPROVAL":
         payload = evt.get("payload") or {}
         run_id = (payload.get("run_id") or "").strip()
@@ -829,6 +843,7 @@ PAGES = [
     "Step1(타겟 설정) → 후보 생성",
     "Step2(후보 선택 확정)",
     "Step3(승인/반려 저장)",
+    "Step4(최종 확인 및 발송)",
     "Run 타임라인",
 ]
 page = st.sidebar.radio("페이지", PAGES, key="page_selector")
@@ -846,6 +861,7 @@ page_to_ui = {
     "Step1(타겟 설정) → 후보 생성": "first",
     "Step2(후보 선택 확정)": "second",
     "Step3(승인/반려 저장)": "third",
+    "Step4(최종 확인 및 발송)": "fourth",
     "Run 타임라인": "timeline",
 }
 ui_page = page_to_ui.get(page, "index")
@@ -879,6 +895,10 @@ elif ui_page == "third":
         result["save_result"] = st.session_state.get("step3_result")
     else:
         result["save_result"] = None
+
+elif ui_page == "fourth":
+    rid = (st.session_state.get("run_id") or "").strip()
+    result = fetch_step4_data(db, repo, rid)
 
 else:
     result = {}

@@ -249,6 +249,7 @@
     padding:16px 28px;
     border-top:1px solid var(--ap-border);
     display:flex;
+    justify-content:space-between;
     align-items:center;
     gap:12px;
     background: rgba(255,255,255,.92);
@@ -256,16 +257,6 @@
     position: sticky;
     bottom: 0;
 }
-
-/* NEW: right actions group (save + final) */
-.actions-right{
-    margin-left:auto;
-    display:flex;
-    align-items:center;
-    justify-content:flex-end;
-    gap:8px; /* <- 버튼 사이 간격(원하면 6px/4px로 더 줄여도 됨) */
-}
-
 .btn-cancel{
     border:1px solid var(--ap-border);
     background:#fff;
@@ -344,12 +335,4 @@
     .modal-actions{ padding:14px 16px; }
     .decision-btns{ flex-direction:column; }
     .btn-decision{ width:100%; }
-    .actions-right{
-        width:100%;
-        justify-content:stretch;
-        margin-left:0;
-    }
-    .actions-right .btn-submit-main{
-        flex:1;
-    }
 }

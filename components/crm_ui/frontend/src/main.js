@@ -45,7 +45,7 @@ function readSelectValue(id, fallback) {
 function readSelectAllowEmpty(id, fallback = "") {
     const el = document.getElementById(id);
     if (!el) return fallback;
-    return (el.value ?? fallback);
+    return el.value ?? fallback;
 }
 
 function sendAction(action, payload) {
@@ -80,7 +80,8 @@ function renderTemplateCard(item, opts = {}) {
     const badgeIcon = opts.badgeIcon || "bi-hourglass-split";
     const showActions = opts.showActions !== false; // default true
 
-    const actionsHtml = showActions ? `
+    const actionsHtml = showActions
+        ? `
     <div class="action-btns">
       <button class="btn-approve" type="button" data-action="approve" data-run-id="${escapeHtml(runId)}">
         <i class="bi bi-check-lg"></i> 승인
@@ -89,7 +90,8 @@ function renderTemplateCard(item, opts = {}) {
         <i class="bi bi-x-lg"></i> 반려
       </button>
     </div>
-    ` : ``;
+    `
+        : ``;
 
     return `
 <div class="t-card" data-run-id="${escapeHtml(runId)}">
@@ -123,19 +125,12 @@ function applyIndexData(result, signal) {
     setTextById("kpi-ctr-trend", kpi.ctr_trend ?? "+0.0%", "+0.0%");
     setTextById("kpi-guard-blocked", kpi.guard_blocked ?? 0, "0");
 
-    // 승인/반려 대기함 = pending_candidate
     setTextById("kpi-pending", kpi.pending_candidate ?? 0, "0");
-
-    // 승인 템플릿 자산 = active_assets (approved count)
     setTextById("kpi-active", kpi.active_assets ?? 0, "0");
 
-    // Registry: 승인/반려
     setTextById("reg-approved", reg.approved ?? 0, "0");
     setTextById("reg-deprecated", reg.deprecated ?? 0, "0");
 
-    // -------------------
-    // (A) Pending latest 1
-    // -------------------
     const latestWrap = document.getElementById("pending-card-wrap");
     if (latestWrap) {
         const latest = pending.latest || null;
@@ -145,12 +140,11 @@ function applyIndexData(result, signal) {
             latestWrap.innerHTML = renderTemplateCard(latest, {
                 badgeText: "REVIEW",
                 badgeIcon: "bi-hourglass-split",
-                showActions: true
+                showActions: true,
             });
         }
     }
 
-    // all pending (if toggled)
     const allWrap = document.getElementById("pending-all-wrap");
     if (allWrap) {
         const showAll = !!ui.show_all_pending;
@@ -164,11 +158,15 @@ function applyIndexData(result, signal) {
                 const latestRid = String(pending.latest?.run_id || "");
                 const filtered = rows.filter((x) => String(x?.run_id || "") !== latestRid);
 
-                allWrap.innerHTML = filtered.map((it) => {
-                    return `<div style="padding:0 16px 14px;">${
-                        renderTemplateCard(it, { badgeText: "REVIEW", badgeIcon: "bi-hourglass-split", showActions: true })
-                    }</div>`;
-                }).join("");
+                allWrap.innerHTML = filtered
+                    .map((it) => {
+                        return `<div style="padding:0 16px 14px;">${renderTemplateCard(it, {
+                            badgeText: "REVIEW",
+                            badgeIcon: "bi-hourglass-split",
+                            showActions: true,
+                        })}</div>`;
+                    })
+                    .join("");
 
                 if (!filtered.length) {
                     allWrap.innerHTML = `<div style="padding:12px 16px; color:#64748B;">추가 대기 템플릿이 없습니다.</div>`;
@@ -179,9 +177,6 @@ function applyIndexData(result, signal) {
         }
     }
 
-    // -------------------
-    // (B) Approved latest 1
-    // -------------------
     const approvedLatestWrap = document.getElementById("approved-card-wrap");
     if (approvedLatestWrap) {
         const latest = approved.latest || null;
@@ -191,12 +186,11 @@ function applyIndexData(result, signal) {
             approvedLatestWrap.innerHTML = renderTemplateCard(latest, {
                 badgeText: "APPROVED",
                 badgeIcon: "bi-check-circle-fill",
-                showActions: false
+                showActions: false,
             });
         }
     }
 
-    // all approved (if toggled)
     const approvedAllWrap = document.getElementById("approved-all-wrap");
     if (approvedAllWrap) {
         const showAll = !!ui.show_all_approved;
@@ -210,11 +204,15 @@ function applyIndexData(result, signal) {
                 const latestRid = String(approved.latest?.run_id || "");
                 const filtered = rows.filter((x) => String(x?.run_id || "") !== latestRid);
 
-                approvedAllWrap.innerHTML = filtered.map((it) => {
-                    return `<div style="padding:0 16px 14px;">${
-                        renderTemplateCard(it, { badgeText: "APPROVED", badgeIcon: "bi-check-circle-fill", showActions: false })
-                    }</div>`;
-                }).join("");
+                approvedAllWrap.innerHTML = filtered
+                    .map((it) => {
+                        return `<div style="padding:0 16px 14px;">${renderTemplateCard(it, {
+                            badgeText: "APPROVED",
+                            badgeIcon: "bi-check-circle-fill",
+                            showActions: false,
+                        })}</div>`;
+                    })
+                    .join("");
 
                 if (!filtered.length) {
                     approvedAllWrap.innerHTML = `<div style="padding:12px 16px; color:#64748B;">추가 승인 템플릿이 없습니다.</div>`;
@@ -225,9 +223,7 @@ function applyIndexData(result, signal) {
         }
     }
 
-    // approve/reject event binding (event delegation)
     const root = document.body;
-
     const onClick = (e) => {
         const btn = e.target?.closest?.("button[data-action][data-run-id]");
         if (!btn) return;
@@ -253,7 +249,6 @@ function applyIndexData(result, signal) {
             });
         }
     };
-
     root.addEventListener("click", onClick, { signal });
 }
 
@@ -336,7 +331,7 @@ function restoreStep1StateToDOM() {
     if (age) age.value = st.age ?? "all";
     if (gender) gender.value = st.gender ?? "ALL";
     if (skin) skin.value = st.skin_type ?? "ALL";
-    if (concern) concern.value = (st.concern_keyword ?? "");
+    if (concern) concern.value = st.concern_keyword ?? "";
 
     const isCounseling = (goal ? goal.value : st.goal) === "counseling";
     setCampaignTextEnabled(isCounseling);
@@ -400,7 +395,9 @@ function resetStep1StateToDefaults() {
 // ----------------------
 function cleanupPreviousBindings() {
     if (window.__crm_ui_abort_controller) {
-        try { window.__crm_ui_abort_controller.abort(); } catch (_) {}
+        try {
+            window.__crm_ui_abort_controller.abort();
+        } catch (_) {}
     }
     window.__crm_ui_abort_controller = new AbortController();
     return window.__crm_ui_abort_controller;
@@ -408,15 +405,38 @@ function cleanupPreviousBindings() {
 
 function bindIndexPage(signal, result) {
     const newBtn = document.getElementById("btn-new-template");
-    if (newBtn) newBtn.addEventListener("click", (e) => { e.preventDefault(); sendAction("NAVIGATE_STEP1", {}); }, { signal });
+    if (newBtn)
+        newBtn.addEventListener(
+            "click",
+            (e) => {
+                e.preventDefault();
+                sendAction("NAVIGATE_STEP1", {});
+            },
+            { signal }
+        );
 
     const viewAllBtn = document.getElementById("btn-view-all");
-    if (viewAllBtn) viewAllBtn.addEventListener("click", (e) => { e.preventDefault(); sendAction("HOME_TOGGLE_VIEW_ALL_PENDING", {}); }, { signal });
+    if (viewAllBtn)
+        viewAllBtn.addEventListener(
+            "click",
+            (e) => {
+                e.preventDefault();
+                sendAction("HOME_TOGGLE_VIEW_ALL_PENDING", {});
+            },
+            { signal }
+        );
 
     const viewAllApprovedBtn = document.getElementById("btn-view-all-approved");
-    if (viewAllApprovedBtn) viewAllApprovedBtn.addEventListener("click", (e) => { e.preventDefault(); sendAction("HOME_TOGGLE_VIEW_ALL_APPROVED", {}); }, { signal });
+    if (viewAllApprovedBtn)
+        viewAllApprovedBtn.addEventListener(
+            "click",
+            (e) => {
+                e.preventDefault();
+                sendAction("HOME_TOGGLE_VIEW_ALL_APPROVED", {});
+            },
+            { signal }
+        );
 
-    // index 렌더링 반영
     applyIndexData(result || {}, signal);
 }
 
@@ -425,11 +445,15 @@ function bindFirstPage(signal) {
 
     const goalEl = document.getElementById("goalSelect");
     if (goalEl) {
-        goalEl.addEventListener("change", () => {
-            const goal = readSelectValue("goalSelect", "cart");
-            setCampaignTextEnabled(goal === "counseling");
-            collectStep1StateFromDOM();
-        }, { signal });
+        goalEl.addEventListener(
+            "change",
+            () => {
+                const goal = readSelectValue("goalSelect", "cart");
+                setCampaignTextEnabled(goal === "counseling");
+                collectStep1StateFromDOM();
+            },
+            { signal }
+        );
     }
 
     const ageEl = document.getElementById("ageSelect");
@@ -454,31 +478,39 @@ function bindFirstPage(signal) {
 
     const cancelBtn = document.getElementById("btn-cancel-step1");
     if (cancelBtn) {
-        cancelBtn.addEventListener("click", (e) => {
-            e.preventDefault();
-            resetStep1StateToDefaults();
-            sendAction("STEP1_CANCEL", {});
-        }, { signal });
+        cancelBtn.addEventListener(
+            "click",
+            (e) => {
+                e.preventDefault();
+                resetStep1StateToDefaults();
+                sendAction("STEP1_CANCEL", {});
+            },
+            { signal }
+        );
     }
 
     const form = document.getElementById("briefForm");
     if (form) {
-        form.addEventListener("submit", (e) => {
-            e.preventDefault();
-            const st1 = collectStep1StateFromDOM();
-            const ck = (st1.concern_keyword || "").trim();
-            sendAction("STEP1_SUBMIT", {
-                created_by: st1.created_by,
-                goal: st1.goal,
-                channel: st1.channel,
-                tone: st1.tone,
-                campaign_text: st1.campaign_text,
-                age: st1.age,
-                gender: st1.gender,
-                skin_type: st1.skin_type,
-                concern_keywords: ck ? [ck] : [],
-            });
-        }, { signal });
+        form.addEventListener(
+            "submit",
+            (e) => {
+                e.preventDefault();
+                const st1 = collectStep1StateFromDOM();
+                const ck = (st1.concern_keyword || "").trim();
+                sendAction("STEP1_SUBMIT", {
+                    created_by: st1.created_by,
+                    goal: st1.goal,
+                    channel: st1.channel,
+                    tone: st1.tone,
+                    campaign_text: st1.campaign_text,
+                    age: st1.age,
+                    gender: st1.gender,
+                    skin_type: st1.skin_type,
+                    concern_keywords: ck ? [ck] : [],
+                });
+            },
+            { signal }
+        );
     }
 
     requestPreviewDebounced();
@@ -513,11 +545,13 @@ function renderSecondCandidates(result) {
 
     const ctrFallback = ["4.8%", "4.2%", "3.9%", "4.2%", "4.2%"];
 
-    listEl.innerHTML = candidates.slice(0, 5).map((c, i) => {
-        const title = escapeHtml(c?.title || "");
-        const body = escapeHtml(c?.body_with_slots || "").replaceAll("\n", "<br/>");
-        const isSelected = i === selectedIdx;
-        return `
+    listEl.innerHTML = candidates
+        .slice(0, 5)
+        .map((c, i) => {
+            const title = escapeHtml(c?.title || "");
+            const body = escapeHtml(c?.body_with_slots || "").replaceAll("\n", "<br/>");
+            const isSelected = i === selectedIdx;
+            return `
       <div class="candidate-card ${isSelected ? "selected" : ""}" data-idx="${i}">
         <div class="card-header">
           <span class="candidate-no">Candidate #${i + 1} <small>${title}</small></span>
@@ -533,10 +567,13 @@ function renderSecondCandidates(result) {
         </div>
       </div>
     `;
-    }).join("");
+        })
+        .join("");
 
     const updateSelectionUI = (nextIdx) => {
-        try { window.localStorage.setItem(key, String(nextIdx)); } catch (_) {}
+        try {
+            window.localStorage.setItem(key, String(nextIdx));
+        } catch (_) {}
         listEl.querySelectorAll(".candidate-card").forEach((card) => {
             const idx = Number(card.getAttribute("data-idx"));
             const isSel = idx === nextIdx;
@@ -546,7 +583,10 @@ function renderSecondCandidates(result) {
             if (tags) {
                 const badge = tags.querySelector(".badge-selected");
                 if (isSel && !badge) {
-                    tags.insertAdjacentHTML("afterbegin", `<span class="badge-selected"><i class="bi bi-check-circle-fill"></i> 선택됨</span>`);
+                    tags.insertAdjacentHTML(
+                        "afterbegin",
+                        `<span class="badge-selected"><i class="bi bi-check-circle-fill"></i> 선택됨</span>`
+                    );
                 }
                 if (!isSel && badge) badge.remove();
             }
@@ -563,7 +603,10 @@ function renderSecondCandidates(result) {
         const idx = Number(card.getAttribute("data-idx"));
         const btn = card.querySelector(".btn-select");
         const togglePick = (e) => {
-            if (e) { e.preventDefault(); e.stopPropagation(); }
+            if (e) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
             let cur = selectedIdx;
             try {
                 const raw = window.localStorage.getItem(key);
@@ -581,35 +624,47 @@ function bindSecondPage(signal, result) {
     renderSecondCandidates(result);
 
     const regenBtn = document.querySelector(".btn-cancel");
-    if (regenBtn) regenBtn.addEventListener("click", (e) => { e.preventDefault(); sendAction("STEP2_REGENERATE", { run_id: String(result?.run_id || "") }); }, { signal });
+    if (regenBtn)
+        regenBtn.addEventListener(
+            "click",
+            (e) => {
+                e.preventDefault();
+                sendAction("STEP2_REGENERATE", { run_id: String(result?.run_id || "") });
+            },
+            { signal }
+        );
 
     const confirmBtn = document.querySelector(".btn-submit-main");
     if (confirmBtn) {
-        confirmBtn.addEventListener("click", (e) => {
-            e.preventDefault();
-            const rid = String(result?.run_id || "");
-            const candidates = Array.isArray(result?.candidates) ? result.candidates : [];
-            if (!rid || !candidates.length) {
-                sendAction("STEP2_CONFIRM", { run_id: rid, template_id: "" });
-                return;
-            }
-            const key = getStep2StorageKey(rid);
-            let idx = 0;
-            try {
-                const raw = window.localStorage.getItem(key);
-                if (raw !== null && !Number.isNaN(Number(raw))) idx = Number(raw);
-            } catch (_) {}
-            if (idx < 0 || idx >= candidates.length) {
-                sendAction("STEP2_CONFIRM", { run_id: rid, template_id: "" });
-                return;
-            }
-            sendAction("STEP2_CONFIRM", { run_id: rid, template_id: candidates[idx]?.template_id || "" });
-        }, { signal });
+        confirmBtn.addEventListener(
+            "click",
+            (e) => {
+                e.preventDefault();
+                const rid = String(result?.run_id || "");
+                const candidates = Array.isArray(result?.candidates) ? result.candidates : [];
+                if (!rid || !candidates.length) {
+                    sendAction("STEP2_CONFIRM", { run_id: rid, template_id: "" });
+                    return;
+                }
+                const key = getStep2StorageKey(rid);
+                let idx = 0;
+                try {
+                    const raw = window.localStorage.getItem(key);
+                    if (raw !== null && !Number.isNaN(Number(raw))) idx = Number(raw);
+                } catch (_) {}
+                if (idx < 0 || idx >= candidates.length) {
+                    sendAction("STEP2_CONFIRM", { run_id: rid, template_id: "" });
+                    return;
+                }
+                sendAction("STEP2_CONFIRM", { run_id: rid, template_id: candidates[idx]?.template_id || "" });
+            },
+            { signal }
+        );
     }
 }
 
 // ----------------------
-// Step3 (기존 그대로)
+// Step3
 // ----------------------
 function highlightSlotsToHtml(text) {
     let s = escapeHtml(text || "");
@@ -650,17 +705,19 @@ function renderApprovalHistory(result) {
         return;
     }
 
-    wrap.innerHTML = approvals.slice(0, 20).map((a) => {
-        const at = a.created_at ? String(a.created_at) : "";
-        const marketer = a.marketer_id ? String(a.marketer_id) : "-";
-        const decision = String(a.decision || "").toUpperCase();
-        const comment = a.comment ? String(a.comment) : "";
+    wrap.innerHTML = approvals
+        .slice(0, 20)
+        .map((a) => {
+            const at = a.created_at ? String(a.created_at) : "";
+            const marketer = a.marketer_id ? String(a.marketer_id) : "-";
+            const decision = String(a.decision || "").toUpperCase();
+            const comment = a.comment ? String(a.comment) : "";
 
-        let badge = `<span class="pill unknown"><i class="bi bi-question-circle-fill"></i> 미상</span>`;
-        if (decision === "APPROVED") badge = `<span class="pill approved"><i class="bi bi-check-circle-fill"></i> 승인</span>`;
-        if (decision === "REJECTED") badge = `<span class="pill rejected"><i class="bi bi-x-circle-fill"></i> 반려</span>`;
+            let badge = `<span class="pill unknown"><i class="bi bi-question-circle-fill"></i> 미상</span>`;
+            if (decision === "APPROVED") badge = `<span class="pill approved"><i class="bi bi-check-circle-fill"></i> 승인</span>`;
+            if (decision === "REJECTED") badge = `<span class="pill rejected"><i class="bi bi-x-circle-fill"></i> 반려</span>`;
 
-        return `
+            return `
       <div class="history-row">
         <div class="history-meta">
           ${badge}
@@ -670,7 +727,8 @@ function renderApprovalHistory(result) {
         <div class="history-comment">${comment ? escapeHtml(comment) : "<span class='muted'>코멘트 없음</span>"}</div>
       </div>
     `;
-    }).join("");
+        })
+        .join("");
 }
 
 function bindThirdPage(signal, result) {
@@ -681,8 +739,8 @@ function bindThirdPage(signal, result) {
     const tagEl = document.querySelector(".final-preview-card .card-tag");
     const bodyEl = document.querySelector(".final-preview-card .template-content");
 
-    const title = sel ? (sel.title || "") : "";
-    const body = sel ? (sel.body_with_slots || "") : "";
+    const title = sel ? sel.title || "" : "";
+    const body = sel ? sel.body_with_slots || "" : "";
 
     if (tagEl) {
         const prefix = candNo ? `Candidate #${candNo}` : "Selected";
@@ -697,9 +755,17 @@ function bindThirdPage(signal, result) {
     const saveRes = result?.save_result || null;
     if (saveRes && saveRes.toast_id) {
         const toastKey = `crm_last_toast__${rid || "no_run"}`;
-        const lastId = (() => { try { return localStorage.getItem(toastKey) || ""; } catch (_) { return ""; } })();
+        const lastId = (() => {
+            try {
+                return localStorage.getItem(toastKey) || "";
+            } catch (_) {
+                return "";
+            }
+        })();
         if (String(lastId) !== String(saveRes.toast_id)) {
-            try { localStorage.setItem(toastKey, String(saveRes.toast_id)); } catch (_) {}
+            try {
+                localStorage.setItem(toastKey, String(saveRes.toast_id));
+            } catch (_) {}
             if (saveRes.ok) showToast(saveRes.msg || "저장 완료", "success");
             else showToast(saveRes.msg || "저장 실패", "warn");
         }
@@ -708,6 +774,8 @@ function bindThirdPage(signal, result) {
     const approveBtn = document.getElementById("btnApprove");
     const rejectBtn = document.getElementById("btnReject");
     const saveBtn = document.getElementById("btnSave");
+    const homeBtn = document.getElementById("btnHome");
+    const finalBtn = document.getElementById("btnFinalSend");
     const commentTa = document.querySelector(".comment-section textarea.main-textarea");
 
     const key = getStep3StorageKey(rid);
@@ -722,13 +790,17 @@ function bindThirdPage(signal, result) {
 
     const applyDecisionUI = (decision) => {
         state.decision = decision;
-        try { localStorage.setItem(key, JSON.stringify(state)); } catch (_) {}
+        try {
+            localStorage.setItem(key, JSON.stringify(state));
+        } catch (_) {}
         if (approveBtn) approveBtn.classList.toggle("active", decision === "APPROVED");
         if (rejectBtn) rejectBtn.classList.toggle("active", decision === "REJECTED");
     };
     const applyCommentUI = (comment) => {
         state.comment = comment || "";
-        try { localStorage.setItem(key, JSON.stringify(state)); } catch (_) {}
+        try {
+            localStorage.setItem(key, JSON.stringify(state));
+        } catch (_) {}
     };
 
     applyDecisionUI(state.decision);
@@ -740,17 +812,55 @@ function bindThirdPage(signal, result) {
     if (approveBtn) approveBtn.addEventListener("click", () => applyDecisionUI("APPROVED"), { signal });
     if (rejectBtn) rejectBtn.addEventListener("click", () => applyDecisionUI("REJECTED"), { signal });
 
-    if (saveBtn) {
-        saveBtn.addEventListener("click", (e) => {
-            e.preventDefault();
-            sendAction("STEP3_SAVE_APPROVAL", {
-                run_id: rid,
-                decision: state.decision,
-                comment: state.comment || "",
-                marketer_id: "marketer_001",
-            });
-        }, { signal });
+    // 홈으로(=index.html, Home(UI))
+    if (homeBtn) {
+        homeBtn.addEventListener(
+            "click",
+            (e) => {
+                e.preventDefault();
+                sendAction("NAVIGATE_HOME", {});
+            },
+            { signal }
+        );
     }
+
+    // 결정 저장
+    if (saveBtn) {
+        saveBtn.addEventListener(
+            "click",
+            (e) => {
+                e.preventDefault();
+                sendAction("STEP3_SAVE_APPROVAL", {
+                    run_id: rid,
+                    decision: state.decision,
+                    comment: state.comment || "",
+                    marketer_id: "marketer_001",
+                });
+            },
+            { signal }
+        );
+    }
+
+    // 최종 발송 -> Step4(fourth.html)
+    if (finalBtn) {
+        finalBtn.addEventListener(
+            "click",
+            (e) => {
+                e.preventDefault();
+                sendAction("NAVIGATE_STEP4", { run_id: rid });
+            },
+            { signal }
+        );
+    }
+}
+
+// ----------------------
+// Step4 (fourth) - 최소 바인딩(현재는 렌더만)
+// ----------------------
+function bindFourthPage(signal, result) {
+    // fourth.html에 버튼/필드가 생기면 여기서 id 기반으로 이벤트를 추가하면 됩니다.
+    void signal;
+    void result;
 }
 
 // ---- receive render ----
@@ -774,6 +884,7 @@ window.addEventListener("message", (event) => {
         if (page === "first") bindFirstPage(signal);
         if (page === "second") bindSecondPage(signal, result);
         if (page === "third") bindThirdPage(signal, result);
+        if (page === "fourth") bindFourthPage(signal, result);
 
         if (page === "first") applyFirstData(result);
 
@@ -787,7 +898,4 @@ window.addEventListener("message", (event) => {
     }
 });
 
-window.parent.postMessage(
-    { isStreamlitMessage: true, type: "streamlit:componentReady", apiVersion: 1 },
-    "*"
-);
+window.parent.postMessage({ isStreamlitMessage: true, type: "streamlit:componentReady", apiVersion: 1 }, "*");

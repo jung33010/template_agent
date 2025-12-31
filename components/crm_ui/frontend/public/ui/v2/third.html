@@ -16,13 +16,15 @@
                 <div class="line active"></div>
                 <div class="step"><div class="circle check"><i class="bi bi-check"></i></div><span class="label">후보 생성·검증</span></div>
                 <div class="line active"></div>
-                <div class="step active"><div class="circle">3</div><span class="label">최종 승인</span></div>
+                <div class="step active"><div class="circle">3</div><span class="label">템플릿 승인</span></div>
+                <div class="line active"></div>
+                <div class="step"><div class="circle">4</div><span class="label">최종 발송</span></div>
             </div>
         </div>
 
         <div class="modal-scroll-area">
             <div class="modal-intro">
-                <h2>최종 검토 및 승인</h2>
+                <h2>템플릿 검토 및 승인</h2>
                 <p>선택하신 후보를 검토하고 승인/반려 결정을 저장합니다.</p>
             </div>
 
@@ -60,11 +62,19 @@
         </div>
 
         <div class="modal-actions">
-            <button class="btn-cancel" onclick="history.back()">이전으로</button>
-            <button class="btn-submit-main" id="btnSave">
-                <span>결정 저장</span>
-                <div class="btn-icon"><i class="bi bi-database-fill-up"></i></div>
-            </button>
+            <button class="btn-cancel" id="btnHome" type="button">홈으로</button>
+
+            <div class="actions-right">
+                <button class="btn-submit-main" id="btnSave" type="button">
+                    <span>결정 저장</span>
+                    <div class="btn-icon"><i class="bi bi-database-fill-up"></i></div>
+                </button>
+
+                <button class="btn-submit-main" id="btnFinalSend" type="button">
+                    <span>최종 발송</span>
+                    <div class="btn-icon"><i class="bi bi-send-fill"></i></div>
+                </button>
+            </div>
         </div>
     </div>
 </div>

@@ -22,11 +22,10 @@ def _extract_body_inner(html_text: str) -> str:
     """
     m = re.search(r"<body[^>]*>(.*)</body>", html_text, flags=re.DOTALL | re.IGNORECASE)
     if not m:
-        return ""  # 실패 시 빈 문자열로 반환(상위에서 fallback 처리)
+        return ""
 
     body_inner = m.group(1)
 
-    # body 안의 <script>는 충돌 가능성이 있어 제거 (필요 시 나중에 허용)
     body_inner = re.sub(
         r"<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>",
         "",
@@ -56,20 +55,20 @@ def _build_page_html(page: str) -> str:
     html_text = html_path.read_text(encoding="utf-8")
     css_text = css_path.read_text(encoding="utf-8")
 
-    # 외부 css link 제거 (인라인로 대체)
     html_text = re.sub(r'<link[^>]+href="\./css/[^"]+"[^>]*>\s*', "", html_text)
 
-    # 기존 파일에 ./first.html 같은 페이지 이동 링크가 있으면 막기
-    html_text = re.sub(r'href="\./(index|first|second|third)\.html"', 'href="#"', html_text)
+    html_text = re.sub(
+        r'href="\./(index|first|second|third|fourth|timeline)\.html"',
+        'href="#"',
+        html_text
+    )
 
     body_inner = _extract_body_inner(html_text).strip()
 
-    # 핵심: body 추출 실패하면 통째로 반환(최소 화면이라도 뜨게)
     if not body_inner:
         if os.environ.get("CRM_UI_DEBUG") == "1":
             st.sidebar.warning("[crm_ui] <body> extraction failed. Falling back to full HTML.")
             st.sidebar.write(html_text[:500])
-        # HTML 전체에서 script 제거만 하고 반환
         safe_full = re.sub(
             r"<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>",
             "",
